@@ -1,22 +1,22 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 
-from .models import ALBUMS
+from .models import Album, Artist, Contact, Booking
 
 def index(request):
+    Album.objects.filter(available=True).order_by('-created_at') [:12]
     message = "Hello"
     return HttpResponse(message)
 
 def listing(request): 
-    albums = ["<li>{}</li>".format(albums['name']) for albums in ALBUMS]
+    albums = ["<li>{}</li>".format(albums.title) for albums in Album]
     message = """<ul>{}</ul>""".format("\n".join(albums))
     return HttpResponse(message)
 
 def detail(request, album_id):
-    id = int(album_id)
-    album = ALBUMS[id]
-    artists = " ".join([artist['name'] for artist in album['artists']])
-    message = "Le nom de l'album est {}. Il a été écrit par {}".format(album['name'], artists)
+    album = Album.objects.get(pk=album_id)
+    artists = " ".join([artist.name for artist in album.artists.all()])
+    message = "Le nom de l'album est {}. Il a été écrit par {}".format(album.title, artists)
     return HttpResponse(message)
 
 def search(request):
@@ -25,7 +25,7 @@ def search(request):
         message = "Aucun artiste n'est demandé"
     else:
         albums = [
-            album for album in ALBUMS
+            album for album in Album
             if query in " ".join(artist['name'] for artist in album['artists'])
         ]
         
