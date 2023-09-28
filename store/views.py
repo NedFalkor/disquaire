@@ -20,7 +20,21 @@ def detail(request, album_id):
     return HttpResponse(message)
 
 def search(request):
-    obj = str(request.GET)
-    query = request.GET['query']
-    message = "propriété GET : {} et requête : {}".format(obj,query)
+    query = request.GET.get('query')
+    if not query:
+        message = "Aucun artiste n'est demandé"
+    else:
+        albums = [
+            album for album in ALBUMS
+            if query in " ".join(artist['name'] for artist in album['artists'])
+        ]
+        
+        if len(albums) == 0:
+            message = "Aucun artiste correspondant à {} n'est trouvé".format(query)
+        else:
+            albums = ["<li>{}</li>".format(albums['name']) for albums in albums]
+            message = """nous avons trouvé ceci ! : 
+                <ul>
+                {}
+                </ul>""".format("\n".join(albums))
     return HttpResponse(message)
