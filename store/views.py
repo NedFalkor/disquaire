@@ -22,15 +22,12 @@ def detail(request, album_id):
 def search(request):
     query = request.GET.get('query')
     if not query:
-        message = "Aucun artiste n'est demandé"
+        albums = Album.objects.all()
     else:
-        albums = [
-            album for album in Album
-            if query in " ".join(artist['name'] for artist in album['artists'])
-        ]
+        albums = Album.objects.filter(title_icontains=query)
         
-        if len(albums) == 0:
-            message = "Aucun artiste correspondant à {} n'est trouvé".format(query)
+        if not albums.exists():
+            albums = Album.objects.filter(artists_name_icontains=query)
         else:
             albums = ["<li>{}</li>".format(albums['name']) for albums in albums]
             message = """nous avons trouvé ceci ! : 
